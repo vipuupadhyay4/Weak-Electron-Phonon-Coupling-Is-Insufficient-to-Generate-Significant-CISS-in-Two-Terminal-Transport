@@ -116,8 +116,8 @@ Jnet1=[]
 Jnet2=[]
 GNM=[]
 ANM=[]
-cnthh=0
-for chi in np.arange (0.0,0.201,0.01):
+for chi in np.arange (0.0,0.16,0.01):
+    cnthh=0
     #Matrix formation for electron phonon self energy
     # Hamiltonian Matrix
     epsilon1=chi*t0
@@ -130,7 +130,7 @@ for chi in np.arange (0.0,0.201,0.01):
     for i in range(0, Nf - 2):
         EPH[2*i,2*i]= epsilon1;
         EPH[2*i+1,2*i+1]= epsilon1;
-        
+
         EPH[2*i,2*(i+1)]= -t1;
         EPH[2*(i+1),2*i]= -t1;
         EPH[2*i+1,2*(i+1)+1]= -t1;
@@ -173,7 +173,7 @@ for chi in np.arange (0.0,0.201,0.01):
     
     dab=NwB(omega0, T)
     dem=1+dab    
-    p=-0.5
+    p=0.5
     EP = np.zeros((2 * Nf, 2 * Nf), dtype=complex)
     Gin=np.zeros((2 * Nf, 2 * Nf), dtype=complex)
     Gout=np.zeros((2 * Nf, 2 * Nf), dtype=complex)
