@@ -1,3 +1,4 @@
+
 import numpy as np
 import cmath
 import numpy.linalg as linalg
@@ -17,23 +18,24 @@ W = np.array([[1, 0], [0, 1]])
 # System Parameters
 t0 = 0.4
 epsilon0 = -6*t0
-epsilon1=0.05*t0
-t1 =0.*t0
+epsilon1=0.1*t0
+t1 =0.1*t0
 lambda0 = t0/40
-lambda1 =0.*lambda0
+lambda1 =0.1*lambda0
 nl = 4
-Mt =2
+Mt =5
 Nf = Mt * nl
 eta1=0 
 a = 1
 c = a
 k1 = t0 / 4
-omega0 = 0.01* t0
+omega0 = 0.1* t0
+V=15*t0
 T = 0.25
-tole=0.001
+tole=0.00005
 # Vectors defining helicity
 def phi(m):
-    return 1 * np.pi * (m - 1) * Mt / (Nf - 1)
+    return 2 * np.pi * (m - 1) * Mt / (Nf - 1)
 
 def rvec(m, a, c):
     return np.array([a * np.cos(phi(m)), 
@@ -106,51 +108,6 @@ H[2*(Nf-1),2*(Nf-1)]= epsilon0;
 H[2*(Nf-1)+1,2*(Nf-1)+1]= epsilon0;
 #################################################################################################
 
-#Matrix formation for electron phonon self energy
-# Hamiltonian Matrix
-EPH = np.zeros((2 * Nf, 2 * Nf), dtype=complex)
-for i in range(0, Nf - 2):
-     EPH[2*i,2*i]= epsilon1;
-     EPH[2*i+1,2*i+1]= epsilon1;
-    
-     EPH[2*i,2*(i+1)]= -t1;
-     EPH[2*(i+1),2*i]= -t1;
-     EPH[2*i+1,2*(i+1)+1]= -t1;
-     EPH[2*(i+1)+1,2*i+1]= -t1;
-         
-     #Next Nearest Hopping between same spins
-     EPH[2*i,2*(i+2)]= lambda1 *1j *vpm(i+1)[0,0];
-     EPH[2*(i+2),2*i]= lambda1 *np.conj(1j *vpm(i+1)[0,0]);
-     EPH[2*i+1,2*(i+2)+1]= lambda1 *1j *vpm(i+1)[1,1];
-     EPH[2*(i+2)+1,2*i+1]= lambda1 *np.conj(1j *vpm(i+1)[1,1]);
-     
-     
-     #Next Nearest Hopping between different spins
-     EPH[2*i,2*(i+2)+1]= lambda1*1j*vpm(i+1)[0,1];
-     EPH[2*(i+2)+1,2*i]= lambda1*np.conj(1j *vpm(i+1)[0,1]);
-     EPH[2*i+1,2*(i+2)]= lambda1*1j*vpm(i+1)[1,0];
-     EPH[2*(i+2),2*i+1]= lambda1*np.conj(1j *vpm(i+1)[1,0]);
-   
-   
-    #On Site energies
-EPH[2*(Nf-2),2*(Nf-2)]= epsilon1;
-EPH[2*(Nf-2)+1,2*(Nf-2)+1]= epsilon1;
-
-EPH[2*(Nf-2),2*((Nf-2)+1)]= -t1;
-EPH[2*((Nf-2)+1),2*(Nf-2)]= -t1;
-EPH[2*(Nf-2)+1,2*((Nf-2)+1)+1]= -t1;
-EPH[2*((Nf-2)+1)+1,2*(Nf-2)+1]= -t1;
-
-
-
-#Final on site energies
-EPH[2*(Nf-1),2*(Nf-1)]= epsilon1;
-EPH[2*(Nf-1)+1,2*(Nf-1)+1]= epsilon1;
-
-
-#Nearest Neighbor hopping between same spins
-print(np.allclose(EPH, EPH.conj().T, atol=1e-10))
-
 
 
 
@@ -159,9 +116,57 @@ Jnet1=[]
 Jnet2=[]
 GNM=[]
 ANM=[]
-cnthh=0
-for V in np.arange (15*t0,16*t0,4*t0):
-     
+for chi in np.arange (0.0,0.16,0.01):
+    cnthh=0
+    #Matrix formation for electron phonon self energy
+    # Hamiltonian Matrix
+    epsilon1=chi*t0
+    t1=chi*t0
+    lambda1=chi*lambda0    
+   
+        #Matrix formation for electron phonon self energy
+    # Hamiltonian Matrix
+    EPH = np.zeros((2 * Nf, 2 * Nf), dtype=complex)
+    for i in range(0, Nf - 2):
+        EPH[2*i,2*i]= epsilon1;
+        EPH[2*i+1,2*i+1]= epsilon1;
+
+        EPH[2*i,2*(i+1)]= -t1;
+        EPH[2*(i+1),2*i]= -t1;
+        EPH[2*i+1,2*(i+1)+1]= -t1;
+        EPH[2*(i+1)+1,2*i+1]= -t1;
+            
+        #Next Nearest Hopping between same spins
+        EPH[2*i,2*(i+2)]= lambda1 *1j *vpm(i+1)[0,0];
+        EPH[2*(i+2),2*i]= lambda1 *np.conj(1j *vpm(i+1)[0,0]);
+        EPH[2*i+1,2*(i+2)+1]= lambda1 *1j *vpm(i+1)[1,1];
+        EPH[2*(i+2)+1,2*i+1]= lambda1 *np.conj(1j *vpm(i+1)[1,1]);
+        
+        
+        #Next Nearest Hopping between different spins
+        EPH[2*i,2*(i+2)+1]= lambda1*1j*vpm(i+1)[0,1];
+        EPH[2*(i+2)+1,2*i]= lambda1*np.conj(1j *vpm(i+1)[0,1]);
+        EPH[2*i+1,2*(i+2)]= lambda1*1j*vpm(i+1)[1,0];
+        EPH[2*(i+2),2*i+1]= lambda1*np.conj(1j *vpm(i+1)[1,0]);
+    
+    
+        #On Site energies
+    EPH[2*(Nf-2),2*(Nf-2)]= epsilon1;
+    EPH[2*(Nf-2)+1,2*(Nf-2)+1]= epsilon1;
+
+    EPH[2*(Nf-2),2*((Nf-2)+1)]= -t1;
+    EPH[2*((Nf-2)+1),2*(Nf-2)]= -t1;
+    EPH[2*(Nf-2)+1,2*((Nf-2)+1)+1]= -t1;
+    EPH[2*((Nf-2)+1)+1,2*(Nf-2)+1]= -t1;
+
+
+
+    #Final on site energies
+    EPH[2*(Nf-1),2*(Nf-1)]= epsilon1;
+    EPH[2*(Nf-1)+1,2*(Nf-1)+1]= epsilon1;
+
+
+   
     def NwB(omega0, T):
         # Example function for NwB (replace with your actual formula)
         return 1 / (np.exp(omega0 / T) -1)
@@ -198,10 +203,10 @@ for V in np.arange (15*t0,16*t0,4*t0):
        
     Jl=[]
     
-    for x in range(0,1):
+    for x in range(0,10):
         # We will define the energy mesh 
         Nhis=7 #Order of Pulay Mixings
-        NE = 1650;
+        NE = 165;
         delE = omega0;
         E0 =-5.2+x*omega0/(10);
         EnG = np.array([E0 + n * delE for n in range(NE)])
@@ -214,7 +219,6 @@ for V in np.arange (15*t0,16*t0,4*t0):
         GN = np.zeros((NE, 2 * Nf, 2 * Nf), dtype=complex)
         G0 = np.zeros((NE, 2 * Nf, 2 * Nf), dtype=complex)
         EIN0 = np.zeros((NE, 2 * Nf, 2 * Nf), dtype=complex)
-        ERR = np.zeros((NE, 2 * Nf, 2 * Nf), dtype=complex)
         A = np.zeros((NE, 2 * Nf, 2 * Nf), dtype=complex)
         
         
@@ -226,9 +230,7 @@ for V in np.arange (15*t0,16*t0,4*t0):
                 GA[i]=np.conj(np.transpose(GR[i]))
                 GN[i]=f1(z)*np.dot(np.dot(GR[i], Gin),GA[i])+f2(z)*np.dot(np.dot(GR[i],Gout),GA[i])
                 A[i]=1j*(GR[i]-GA[i])
-                GP[i]=A[i]-GN[i]
-               
-   
+                GP[i]=A[i]-GN[i]    
         else:
                 #Initial Guesses based on previous iterates       
             GR=np.load("GR_mid.npy")
@@ -236,7 +238,13 @@ for V in np.arange (15*t0,16*t0,4*t0):
             GN = np.load("GN_mid.npy")        
             GP= np.load("GP_mid.npy")
             G0 = np.zeros((NE, 2 * Nf, 2 * Nf), dtype=complex)
-               
+            EIN0 = np.zeros((NE, 2 * Nf, 2 * Nf), dtype=complex)
+            A = np.zeros((NE, 2 * Nf, 2 * Nf), dtype=complex)
+                    
+                
+                
+            
+        
         
         #Defining the matrices we will be needing in the analysis
         GRN = np.zeros((NE, 2 * Nf, 2 * Nf), dtype=complex)
@@ -259,9 +267,32 @@ for V in np.arange (15*t0,16*t0,4*t0):
         with open("hilbert_errors4.txt", "w") as f:           
             #The loop will find x_k+1, given x_k and evaluate in a loop (ok)
             while cnt <= 20000:
+            
+                #Functions evaluation for initial Guess
+                for n in range(1, NE-1):
+                    GNprev, GPprev = np.diag(np.diag(GN[n-1])), np.diag(np.diag(GP[n-1]))
+                    GNnext, GPnext = np.diag(np.diag(GN[n+1])), np.diag(np.diag(GP[n+1]))
+                    G0[n]   = np.diag(np.diag(EPH @ (dab*GNprev + dem*GPprev + dem*GNnext + dab*GPnext) @ EPH))
+                    EIN0[n] = np.diag(np.diag(EPH @ (dab*GNprev + dem*GNnext) @ EPH))
+            
+            # ===== Exact principal-value Hilbert =====
+                def hilbert_pv_trapz(f, E):
+                    N = E.size
+                    dE = E[1] - E[0]
+                    diff = E[:, None] - E[None, :]
+                    np.fill_diagonal(diff, np.inf)
+                    kernel = 1.0 / diff
+                    integral = kernel @ (f * dE)
+                    return integral / np.pi
+                
+                gamma_exact = np.zeros_like(G0, dtype=complex)
+                for i in range(2*Nf):
+                    for j in range(2*Nf):
+                        gamma_exact[:, i, j] = hilbert_pv_trapz(G0[:, i, j], EnG)
+                ERR = 0.5 * (gamma_exact - 1j * G0)
+                
+                #Functions evaluation for initial Guess
                 for n in range(1, NE-1):    
-                    ERR[n]   = EPH*GR[n] 
-                    EIN0[n] =EPH*GN[n] 
                     z = EnG[n]+1j*eta1
                     GRN[n] = np.linalg.inv(z*np.eye(2*Nf) - H - EP -ERR[n])
                     GAN[n] = np.conj(GRN[n].T)
@@ -284,9 +315,10 @@ for V in np.arange (15*t0,16*t0,4*t0):
                 if err1 < tole:
                     AF,GRF, GAF, GNF, GPF = A.copy(),GRN.copy(), GAN.copy(), GNN.copy(), GPN.copy()
                     for n in range(1, NE-1):
-                        ERR[n]   = EPH*GRF[n] 
-                        EIN0[n] =EPH*GNF[n]  
-                        G0[n]=1j*(ERR[n]-np.conj(ERR[n].T))    
+                        GNprev, GPprev = np.diag(np.diag(GNF[n-1])), np.diag(np.diag(GPF[n-1]))
+                        GNnext, GPnext = np.diag(np.diag(GNF[n+1])), np.diag(np.diag(GPF[n+1]))
+                        G0[n]   = np.diag(np.diag(EPH @ (dab*GNprev + dem*GPprev + dem*GNnext + dab*GPnext) @ EPH))
+                        EIN0[n] = np.diag(np.diag(EPH @ (dab*GNprev + dem*GNnext) @ EPH))
                     break
                 
                 
@@ -311,10 +343,10 @@ for V in np.arange (15*t0,16*t0,4*t0):
                     # Solve for the coefficients c
                     try:
                         sol = np.linalg.solve(M, rhs)
-                        c1 = sol[:Nhis]
+                        cx = sol[:Nhis]
                     except np.linalg.LinAlgError:
                         # If the matrix is singular, fall back to simple mixing
-                        c1 = np.ones(Nhis) / Nhis
+                        cx = np.ones(Nhis) / Nhis
                         print("Warning: Singularity detected. Reverting to simple mixing.")
                     beta = 0.27 # default damping               
                     beta1=0
@@ -328,7 +360,7 @@ for V in np.arange (15*t0,16*t0,4*t0):
                         beta1=0.8
                                         
                                                                     
-                    GR_pulay = sum(c1[i] * HGR[i] for i in range(Nhis))
+                    GR_pulay = sum(cx[i] * HGR[i] for i in range(Nhis))
                     GR_next = beta1*GR_old+(1-beta1)*(beta * GR_pulay + (1 - beta) * GRN)
 
                 
@@ -380,13 +412,11 @@ for V in np.arange (15*t0,16*t0,4*t0):
                                        
             Jl.append((z,ILD.real,IRD.real,IPD.real,ILD.real+IRD.real+IPD.real))
              # Append (energy, diag_ratio array) to GNM
-            GNM.append((z, GNF[i]))
-            ANM.append((z,AF[i]))
+           
             
     
     Jls1= sorted(Jl, key=lambda x: x[0])
-    GNMS=sorted(GNM, key=lambda x: x[0])
-    ANMS=sorted(ANM, key=lambda x: x[0])
+   
     
     Jl= np.array(Jls1, dtype=float)  # Convert to NumPy array with float values
     
@@ -408,50 +438,12 @@ for V in np.arange (15*t0,16*t0,4*t0):
        
     
     # Append to Jnet
-    Jnet1.append((V/t0, Ilu, Ild,Ilp,IlT))
+    Jnet1.append((chi, Ilu, Ild,Ilp,IlT))
  
 
 print(Jnet1)
 
-real_data = np.real(Jl1)
+real_data = np.real(Jnet1)
 # Save as a space-separated text file
-np.savetxt("Currents_with_energy_ml2_diagonal.txt", real_data, fmt="%.9f")  # Adjust precision as needed
+np.savetxt("Currents_with_energy_ml5_diagonal_Interaction_OP.txt", real_data, fmt="%.9f")  # Adjust precision as needed
 
-
-COR=np.zeros((2*Nf,2*Nf), dtype=complex)
-DOS=np.zeros((2*Nf,2*Nf), dtype=complex)
-for n in range(0,2*Nf):
-    for m in range(0,2*Nf):
-        row_v = [GNF[n,m] for _, GNF in GNMS]
-        row_v1 = [AF[n,m] for _, AF in ANMS]
-        
-        Il=simpson(row_v,x1)
-        Il1=simpson(row_v1,x1)
-        COR[n,m]=Il/(2*np.pi)
-        DOS[n,m]=Il1/(2*np.pi)
-
-
-
-
-occup = np.zeros(2*Nf, dtype=complex)
-diag_COR=np.zeros(2*Nf, dtype=complex)
-diag_DOS=np.zeros(2*Nf, dtype=complex)
-for n in range(2*Nf):
-    diag_COR[n]=COR[n, n]
-    diag_DOS[n]=DOS[n,n]
-    occup[n] = COR[n, n] / DOS[n, n]  # site-resolved ratio
-
-sites = np.arange(len(occup))
-
-
-real_data = np.real(occup)
-# Save as a space-separated text file
-np.savetxt("Occupation_ml2.txt", real_data, fmt="%.9f")  # Adjust precision as needed
-plt.figure()
-plt.plot(sites, occup, marker='o')
-plt.plot(sites, diag_COR, marker='o')
-plt.plot(sites, diag_DOS, marker='o')
-plt.xlabel("Site index")
-plt.ylabel("Diagonal of COR (occupation per site)")
-plt.title("Diagonal elements vs site")
-plt.show()
